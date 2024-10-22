@@ -5,8 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="25a95ce1-8ddd-4f2a-88a8-b4c99fd422ea" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.venv/main.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.venv/pyvenv.cfg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.venv/GUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/.venv/GUI.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -76,8 +76,8 @@
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="v1" />
     <MESSAGE value="task 1 finished" />
-    <option name="LAST_COMMIT_MESSAGE" value="task 1 finished" />
+    <MESSAGE value="v1" />
+    <option name="LAST_COMMIT_MESSAGE" value="v1" />
   </component>
 </project>

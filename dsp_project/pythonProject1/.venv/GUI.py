@@ -27,6 +27,7 @@ class SignalProcessingApp:
 
         self.save_button = Button(master, text="Save Signal", command=self.save_signal)
         self.save_button.pack()
+        self.view_sin=Button(master,text="continous",command=self.)
 
     def load_signal(self):
         file_path = filedialog.askopenfilename()
