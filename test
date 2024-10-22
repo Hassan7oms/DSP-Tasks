@@ -1,0 +1,165 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from tkinter import filedialog, Tk, Button, simpledialog, messagebox
+
+def generate_sine_wave(A, theta, analog_freq, sampling_freq, duration):
+    t = np.arange(0, duration, 1/sampling_freq)
+    sine_wave = A * np.sin(2 * np.pi * analog_freq * t + theta)
+    return t, sine_wave
+
+def generate_cosine_wave(A, theta, analog_freq, sampling_freq, duration):
+    t = np.arange(0, duration, 1/sampling_freq)
+    cosine_wave = A * np.cos(2 * np.pi * analog_freq * t + theta)
+    return t, cosine_wave
+
+def read_signal(file_path):
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+        indices = []
+        values = []
+        for line in lines[1:]:
+            parts = line.split()
+            if len(parts) == 2:
+                index, value = map(float, parts)
+                indices.append(index)
+                values.append(value)
+            else:
+                print(f"Skipping malformed line: {line.strip()}")
+    return np.array(indices), np.array(values)
+
+
+def display_signal(indices, values, title="Signal"):
+    plt.figure()
+    plt.stem(indices, values, basefmt=" ")
+    plt.title(title)
+    plt.xlabel('Index (n)')
+    plt.ylabel('Amplitude')
+    plt.show()
+
+def plot_signals(t1, signal1, t2=None, signal2=None):
+    plt.figure()
+    plt.plot(t1, signal1, label="Signal 1")
+    if t2 is not None and signal2 is not None:
+        plt.plot(t2, signal2, label="Signal 2")
+    plt.legend()
+    plt.show()
+
+def add_signals(signals_list):
+    all_indices = np.unique(np.concatenate([indices for indices, values in signals_list]))
+    result_signal = np.zeros_like(all_indices)
+
+    for indices, values in signals_list:
+        interpolated_values = np.interp(all_indices, indices, values)
+        result_signal += interpolated_values
+
+    return all_indices, result_signal
+
+
+def apply_multiplication(indices, values, constant):
+    return indices, values * constant
+
+
+def apply_shift(indices, values, k):
+    shifted_indices = indices + k
+    return shifted_indices, values
+
+
+def apply_reverse(indices, values):
+    reversed_indices = -indices
+    return reversed_indices, values
+
+
+class SignalProcessingApp:
+    def __init__(self, master):
+        self.master = master
+        master.title("Signal Processing App")
+
+        self.signals = []
+
+        self.load_button = Button(master, text="Load Signal", command=self.load_signal)
+        self.load_button.pack()
+
+        self.add_button = Button(master, text="Add Signals", command=self.add_signals)
+        self.add_button.pack()
+
+        self.subtract_button = Button(master, text="Subtract Signals", command=self.subtract_signals)
+        self.subtract_button.pack()
+
+        self.multiply_button = Button(master, text="Multiply Signal by Constant", command=self.multiply_signal)
+        self.multiply_button.pack()
+
+        self.shift_button = Button(master, text="Shift Signal", command=self.shift_signal)
+        self.shift_button.pack()
+
+        self.reverse_button = Button(master, text="Reverse Signal", command=self.reverse_signal)
+        self.reverse_button.pack()
+
+    def load_signal(self):
+        file_path = filedialog.askopenfilename()
+        if not file_path:
+            return  # User canceled the file dialog
+        indices, values = read_signal(file_path)
+        self.signals.append((indices, values))
+        display_signal(indices, values, title="Loaded Signal")
+
+    def add_signals(self):
+        if len(self.signals) < 2:
+            messagebox.showwarning("Error", "You need to load at least two signals to add.")
+            return
+        indices, result = add_signals(self.signals)
+        display_signal(indices, result, title="Added Signals")
+
+    def subtract_signals(self):
+        if len(self.signals) < 2:
+            messagebox.showwarning("Error", "You need to load at least two signals to subtract.")
+            return
+        indices1, values1 = self.signals[0]
+        indices2, values2 = self.signals[1]
+
+        # Multiply the second signal by -1
+        neg_values2 = values2 * -1
+
+        # Now add the first signal with the negated second signal
+        indices, result = add_signals([(indices1, values1), (indices2, neg_values2)])
+        display_signal(indices, result, title="Subtracted Signals")
+
+    def multiply_signal(self):
+        if not self.signals:
+            messagebox.showwarning("Error", "You need to load a signal first.")
+            return
+        constant = simpledialog.askfloat("Input", "Enter a constant to multiply the signal:")
+        if constant is None:
+            return  # User canceled the input dialog
+        indices, values = self.signals[0]
+        indices, result = apply_multiplication(indices, values, constant)
+        display_signal(indices, result, title="Multiplied Signal")
+
+    def shift_signal(self):
+        if not self.signals:
+            messagebox.showwarning("Error", "You need to load a signal first.")
+            return
+        k = simpledialog.askinteger("Input", "Enter the number of steps to shift:")
+        if k is None:
+            return  # User canceled the input dialog
+        indices, values = self.signals[0]
+        indices, result = apply_shift(indices, values, k)
+        display_signal(indices, result, title="Shifted Signal")
+
+    def reverse_signal(self):
+        if not self.signals:
+            messagebox.showwarning("Error", "You need to load a signal first.")
+            return
+        indices, values = self.signals[0]
+        indices, result = apply_reverse(indices, values)
+        display_signal(indices, result, title="Reversed Signal")
+    def on_signal_generation(selection, A, theta, analog_freq, sampling_freq, duration):
+        if selection == "Sine Wave":
+         t, signal = generate_sine_wave(A, theta, analog_freq, sampling_freq, duration)
+        elif selection == "Cosine Wave":
+            t, signal = generate_cosine_wave(A, theta, analog_freq, sampling_freq, duration)
+        plot_signals(t, signal)
+
+
+root = Tk()
+app = SignalProcessingApp(root)
+root.mainloop()
